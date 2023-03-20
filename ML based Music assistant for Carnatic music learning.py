@@ -51,10 +51,10 @@ print(matrix)
 # Creating a DataFrame
 DataSample= matrix
 SimpleDataFrame=pd.DataFrame(data=DataSample, columns=['spectral_contrast','spectral_centroid','mfccs',label])
-print(SimpleDataFrame)
+# print(SimpleDataFrame)
  
 # # Exporting data frame to a csv/Excel file
 # # Many other options are available which can be seen using dot tab option
  
 # # Exporting data as a csv file
-# SimpleDataFrame.to_csv('E:\MCA-2 Year\Main Project\SimpleDataFrame.csv')
+SimpleDataFrame.to_csv('E:\MCA-2 Year\Main Project\Test.csv')
