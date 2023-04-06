@@ -130,6 +130,7 @@ def home(request):
         mfccs_scaled_features=mfccs_scaled_features.reshape(1,-1)
         predict_x=model.predict(mfccs_scaled_features)
         classes_x=np.argmax(predict_x,axis=1)
-        prediction_class = labelencoder.inverse_transform(classes_x)
-        print(prediction_class)
+        results = labelencoder.inverse_transform(classes_x)
+        raga="Predicted raga is :"
+        return render(request, 'home.html', {'results': results,'raga':raga})
      return render(request,'home.html')
