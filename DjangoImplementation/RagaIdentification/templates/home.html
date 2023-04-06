@@ -1,0 +1,91 @@
+{% load static %} 
+<!DOCTYPE html>
+<html>
+  <head>
+    <title> Raga Identification</title>
+    <style>
+      /* Navbar styles */
+      .navbar {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: rgba(0, 0, 0, 0.8);
+        color: #fff;
+        padding: 10px 20px;
+        font-family: 'Brush Script MT', cursive;
+        font-size: 2.5rem;
+        text-transform: none;
+      }
+
+      /* Background styles */
+      body {
+        margin: 0;
+        padding: 0;
+        background-image: url('{% static "images/background.jpg" %}');
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+      }
+
+      /* Form styles */
+      h1 {
+        text-align: center;
+        margin-top: 50px;
+        margin-bottom: 30px;
+        color: #fff;
+        text-shadow: 0 0 5px rgba(255, 0, 0, 0.5);
+      }
+
+      form {
+        width: 400px;
+        margin: 0 auto;
+        background-color: rgba(255, 255, 255, 0.85);
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+      }
+
+      label {
+        display: block;
+        margin-bottom: 10px;
+        font-weight: bold;
+      }
+
+      input[type="file"] {
+        display: block;
+        margin: 0 auto;
+        margin-bottom: 20px;
+        text-align: center;
+      }
+
+      input[type="submit"] {
+        display: block;
+        margin: 0 auto;
+        background-color: #00ff08;
+        color: #000000;
+        border: none;
+        border-radius: 5px;
+        padding: 10px 20px;
+        cursor: pointer;
+      }
+
+      @media screen and (max-width: 480px) {
+        form {
+          width: 80%;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <nav class="navbar">
+      Carnatic Music Raga Identification
+    </nav>
+    <h1>Upload Audio</h1>
+    <form  method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      <label for="audio">Select an audio file:</label>
+      <input type="file" id="audio" name="audio" accept="audio/*">
+      <input type="submit" value="Upload">
+    </form>
+  </body>
+</html>
