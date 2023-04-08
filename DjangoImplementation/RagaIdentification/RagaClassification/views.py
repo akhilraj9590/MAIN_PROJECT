@@ -1,4 +1,5 @@
 from django.shortcuts import render
+from django.conf import settings
 import librosa
 import librosa.display
 import IPython.display as ipd
@@ -17,6 +18,17 @@ from sklearn import metrics
 from tensorflow.keras.callbacks import ModelCheckpoint
 from datetime import datetime 
 import keras
+from django.views.decorators.csrf import csrf_exempt
+# import pydub
+import io
+from django.contrib import messages
+from django.http import HttpResponse
+# from django.core.files.storage import FileSystemStorage
+from pydub import AudioSegment
+
+
+
+
 
 
 
@@ -122,6 +134,9 @@ model = keras.models.load_model('saved_models/Model_classification.hdf5')
 # # print(test_accuracy)
 
 def home(request):
+    return render(request,'home.html')
+
+def uploadAudio(request):
      if request.method == 'POST':
         uploaded_file = request.FILES['audio']
         audio, sample_rate = librosa.load(uploaded_file, res_type='kaiser_fast')
@@ -132,5 +147,32 @@ def home(request):
         classes_x=np.argmax(predict_x,axis=1)
         results = labelencoder.inverse_transform(classes_x)
         raga="Predicted raga is :"
-        return render(request, 'home.html', {'results': results,'raga':raga})
-     return render(request,'home.html')
+
+        return render(request, 'uploadAudio.html', {'results': results,'raga':raga})
+     return render(request,'uploadAudio.html')
+
+
+
+@csrf_exempt
+def predictByRecord(request):      
+    if request.method == 'POST':
+        audio_file = request.FILES.get('audio_file')
+        if audio_file:
+            # Save the audio file to a temporary location
+            with open('tmp/audio.wav', 'wb+') as destination:
+                print("hello hai")
+                for chunk in audio_file.chunks():
+                    destination.write(chunk)
+            uploaded_file ="E:/MCA-2 Year/Main Project/code/MAIN_PROJECT/DjangoImplementation/RagaIdentification/tmp/audio.wav"
+            output_file = "E:/MCA-2 Year/Main Project/code/MAIN_PROJECT/DjangoImplementation/RagaIdentification/tmp/audio.mp3"
+            sound = AudioSegment.from_wav(uploaded_file)
+            sound.export(output_file, format="mp3")
+            # sound = AudioSegment.from_mp3(input_file)
+            # audio, sample_rate = librosa.load(uploaded_file,sr=22050, res_type='kaiser_fast')
+            # print("asjjh",audio)
+        # d="predicted raga is Mayamalavagowla"
+        # return render(request,'recordAudio.html',{"d":d})
+            
+    return render(request,'recordAudio.html')
+
+

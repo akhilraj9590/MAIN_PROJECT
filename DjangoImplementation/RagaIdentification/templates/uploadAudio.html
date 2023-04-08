@@ -1,0 +1,228 @@
+{% load static %} 
+<!DOCTYPE html>
+<html>
+  <head>
+    <link rel="shortcut icon" type="image/x-icon" href="{% static 'images/favicon.ico' %}">
+    <title> Raga Identification</title>
+    <style>
+      /* Navbar styles */
+      .navbar {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: rgba(0, 0, 0, 0.1);
+        color: #fff;
+        padding: 15px 20px;
+        text-shadow: 0 0 5px rgb(255, 0, 0);
+        font-family: 'Brush Script MT', cursive;
+        font-size: 2.5rem;
+        text-transform: none;
+        box-shadow: 0 5px 10px rgba(0, 0, 0, 1);
+
+      }
+
+      /* Background styles */
+      body {
+        margin: 0;
+        padding: 0;
+        background-image: url('{% static "images/bg1.jpg" %}');
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+      }
+
+      /* Form styles */
+      h1 {
+        text-align: center;
+        margin-top: 50px;
+        margin-bottom: 30px;
+        color: #fff;
+        text-shadow: 0 0 5px rgba(255, 0, 0, 0.5);
+        
+      }
+
+      form {
+        width: 400px;
+        margin: 0 auto;
+        background-color: rgba(255, 255, 255, 1);
+        border-radius: 10px;
+        padding: 20px;
+        /* box-shadow: 0 0 10px rgba(0, 0, 0, 1); */
+        color: #000000;
+
+      }
+
+      label {
+        display: block;
+        margin-bottom: 10px;
+        font-weight: bold;
+      }
+
+      input[type="file"] {
+        display: block;
+        margin: 0 auto;
+        margin-bottom: 20px;
+        text-align: center;
+      }
+
+      input[type="submit"] {
+        display: block;
+        margin: 0 auto;
+        background-color: rgb(0, 255, 0);
+        color: #ffffff;
+        border: none;
+        border-radius: 5px;
+        padding: 10px 20px;
+        cursor: pointer;
+        box-shadow: 0 5px 10px rgb(0, 0, 0,0.3);
+        font-weight: 900;
+        font-size: 100;
+        text-shadow: 2px 2px 2px rgba(0, 0, 0, 0.9);
+        
+      }
+      
+      input[type="submit"]:hover{
+        box-shadow: 0 5px 10px rgb(0, 0, 0,1);
+        background-color: rgb(0, 255, 0);
+      }
+
+      hr {
+      border: none;
+      height: 1px;
+      background-color: rgba(0,0,0,1);
+      box-shadow: 0 2px 2px rgba(0,0,0,1);
+    }
+
+      .result {
+        margin: 0 auto;
+        text-align: center;
+        color: #fff;
+        text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+        width: 27%;
+        /* background-color: rgba(0, 0, 0, 0.6); */
+        border-radius: 10px;
+        padding: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 1);
+      }
+      .button {
+        display: inline-block;
+        padding: 10px 20px;
+        /* background-color: rgba(59, 59, 59, 0.6); */
+        color: #fff;
+        text-decoration: none;
+        border-radius: 4px;
+        border: none;
+        font-size: 16px;
+        text-shadow: 2px 2px 2px rgba(0, 0, 0, 0.9);
+        cursor: pointer;
+        box-shadow: 0 5px 10px rgb(0, 0, 0);
+        
+      }
+
+      .button:hover {
+        font-size: 18px;
+      }
+      #clear-link{
+        display: block;
+        margin: 7px auto;
+        color:rgb(255, 0, 0);
+        text-decoration: none;
+        margin-top: 12px;
+
+      }
+
+
+      @media screen and (max-width: 480px) {
+        form {
+          width: 80%;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <nav class="navbar">
+      Carnatic Music Raga Identification
+    </nav>
+    <h1>Upload Audio</h1>
+    <form id="upload-form" method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      <label for="audio">Select an audio file:</label>
+      <input type="file"  id="audio" name="audio" accept="audio/*">
+      <button id="cancel-btn" type="button" onclick="resetForm()">Cancel</button>
+      <hr>
+      <input type="submit" value="Submit">
+    </form>
+    <h1><a href="{% url 'home' %}" class="button">Back</a></h1>
+    {% if results %}
+      <div class="result">
+        <h3 >Results:</h3>
+        {{raga}}
+        {% for result in results %}
+          {{ result }}
+        {% endfor %}
+        <a href="{% url 'uploadAudio' %}" id="clear-link" >Clear</a>
+      </div>
+    {% endif %}
+    
+    <script>
+      function resetForm() {
+        // Get a reference to the form element
+        const form = document.querySelector('#upload-form');
+
+        // Reset the form
+        form.reset();
+      }
+      const uploadForm = document.getElementById('upload-form');
+      uploadForm.addEventListener('submit', (event) => {
+        const fileInput = document.getElementById('audio');
+        if (!fileInput.value) {
+          event.preventDefault();
+          const popupContainer = document.createElement('div');
+          popupContainer.style = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 9999;
+          `;
+          const popup = document.createElement('div');
+          popup.style = `
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            text-align: center;
+          `;
+          const popupText = document.createElement('p');
+          popupText.textContent = 'Please select a audio file';
+          const popupButton = document.createElement('button');
+          popupButton.textContent = 'OK';
+          popupButton.style = `
+            padding: 10px 20px;
+            background-color: #00ff08;
+            color: blac;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 20px;
+          `;
+          popupButton.addEventListener('click', () => {
+            popupContainer.remove();
+          });
+          popup.appendChild(popupText);
+          popup.appendChild(popupButton);
+          popupContainer.appendChild(popup);
+          document.body.appendChild(popupContainer);
+        }
+        
+      });
+      
+    </script>
+    
+  </body>
+</html>

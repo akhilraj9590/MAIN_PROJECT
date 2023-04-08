@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Record Audio</title>
+  </head>
+  <body>
+    <button id="record">Record</button>
+    <button id="stop">Stop</button>
+    <script>
+      navigator.mediaDevices.getUserMedia({ audio: true })
+        .then(function(stream) {
+          const recorder = new MediaRecorder(stream);
+          recorder.addEventListener('dataavailable', function(event) {
+            const audioData = event.data;
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', '/process-audio/');
+            xhr.send(audioData);
+          });
+          document.querySelector('button#record').addEventListener('click', function() {
+            recorder.start();
+          });
+          document.querySelector('button#stop').addEventListener('click', function() {
+            recorder.stop();
+          });
+        });
+    </script>
+  </body>
+</html>

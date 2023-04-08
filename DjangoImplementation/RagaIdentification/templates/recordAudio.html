@@ -1,0 +1,217 @@
+{% load static %} 
+<!DOCTYPE html>
+<html>
+  <link rel="shortcut icon" type="image/x-icon" href="{% static 'images/favicon.ico' %}">
+  <head>
+    <title> Raga Identification</title>
+    <style>
+      /* Navbar styles */
+      .navbar {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        text-shadow: 0 0 5px rgb(255, 0, 0);
+        color: #fff;
+        padding: 15px 20px;
+        font-family: 'Brush Script MT', cursive;
+        font-size: 2.5rem;
+        text-transform: none;
+        box-shadow: 0 5px 10px rgba(0, 0, 0, 1);
+
+      }
+
+      /* Background styles */
+      body {
+        margin: 0;
+        padding: 0;
+        background-image: url('{% static "images/bg1.jpg" %}');
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+      }
+
+      /* Form styles */
+      h1 {
+        text-align: center;
+        margin-top: 50px;
+        margin-bottom: 30px;
+        color: #fff;
+        text-shadow: 0 0 5px rgb(255, 191, 0);
+      }
+
+      form {
+        width: 400px;
+        margin: 0 auto;
+        background-color: rgba(255, 255, 255, 0.85);
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+      }
+
+      label {
+        display: block;
+        margin-bottom: 10px;
+        font-weight: bold;
+      }
+
+      input[type="file"] {
+        display: block;
+        margin: 0 auto;
+        margin-bottom: 20px;
+        text-align: center;
+      }
+
+      input[type="submit"] {
+        display: block;
+        margin: 0 auto;
+        background-color: rgb(0, 255, 0);
+        color: #ffffff;
+        border: none;
+        border-radius: 5px;
+        padding: 10px 20px;
+        cursor: pointer;
+        box-shadow: 0 5px 10px rgb(0, 0, 0,0.3);
+        font-weight: 900;
+        font-size: 100;
+        text-shadow: 2px 2px 2px rgba(0, 0, 0, 0.9);
+      }
+      .result {
+        margin: 50px auto;
+        text-align: center;
+        color: #fff;
+        text-shadow: 0 0 5px rgba(255, 0, 0, 0.5);
+        width: 80%;
+        background-color: rgba(0, 0, 0, 0.6);
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+      }
+
+      input[type="submit"]:hover{
+        box-shadow: 0 5px 10px rgb(0, 0, 0,1);
+        background-color: rgb(0, 255, 0);
+      }
+
+      .btn {
+        display: block;
+        margin: 0 10px;
+        background-color: #9dff00;
+        color: #ffffff;
+        text-shadow: 0 0 5px rgba(0, 0, 0, 0.9);
+        border: none;
+        border-radius: 5px;
+        padding: 10px 20px;
+        cursor: pointer;
+        font-size: 30px;
+      }
+      .button {
+        display: inline-block;
+        padding: 10px 20px;
+        /* background-color: rgba(59, 59, 59, 0.6); */
+        color: #fff;
+        text-decoration: none;
+        border-radius: 4px;
+        border: none;
+        font-size: 16px;
+        text-shadow: 2px 2px 2px rgba(0, 0, 0, 0.9);
+        cursor: pointer;
+        box-shadow: 0 5px 10px rgb(0, 0, 0);
+        
+      }
+
+      .button:hover {
+        font-size: 18px;
+      }
+
+      @media screen and (max-width: 480px) {
+        form {
+          width: 80%;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <nav class="navbar">
+      Carnatic Music Raga Identification
+    </nav>
+    <h1>Record Audio</h1>
+	<form id="audio-form"  method="post" enctype="multipart/form-data" >
+    {% csrf_token %}
+		<label for="audio">Record Audio:</label>
+		<button id="record-btn" type="button" onclick="toggleRecording()">Record</button>
+		<br>
+		<button id="cancel-btn" type="button" onclick="resetForm()">Cancel</button>
+        <audio id="audio" controls></audio>
+        <hr>
+		<input type="submit" value="Submit">
+	</form>
+  <h1><a href="{% url 'home' %}" class="button">Back</a></h1>
+  <script>
+		
+  let audioStream;
+  let mediaRecorder;
+  let chunks = [];
+
+  function toggleRecording() {
+    if (!mediaRecorder) {
+      navigator.mediaDevices.getUserMedia({ audio: true })
+        .then(function(stream) {
+          audioStream = stream;
+          mediaRecorder = new MediaRecorder(stream);
+          mediaRecorder.ondataavailable = function(e) {
+            chunks.push(e.data);
+          };
+          mediaRecorder.onstop = function() {
+            let blob = new Blob(chunks, { 'type' : 'audio/wav; codecs=pcm' });
+            let formData = new FormData();
+            formData.append('audio_file', blob, 'audio.wav');
+            let xhr = new XMLHttpRequest();
+            xhr.open('POST', '/predictByRecord'); // add trailing slash at the end
+            xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}');
+            xhr.onload = function() {
+              if (xhr.status === 200) {
+                console.log('Audio uploaded successfully');
+              } else {
+                console.log('Audio upload failed');
+              }
+            };
+            xhr.send(formData);
+            document.getElementById('audio').src = URL.createObjectURL(blob);
+            document.getElementById('record-btn').textContent = 'Record';
+            chunks = [];
+            audioStream.getTracks().forEach(function(track) {
+              track.stop();
+            });
+            mediaRecorder = null;
+            audioStream = null;
+          };
+          mediaRecorder.start();
+          document.getElementById('record-btn').textContent = 'Stop';
+        })
+        .catch(function(err) {
+          console.log('Error:', err);
+        });
+    } else {
+      mediaRecorder.stop();
+    }
+  }
+
+  function resetForm() {
+    document.getElementById('audio-form').reset();
+    document.getElementById('audio').src = '';
+    if (mediaRecorder) {
+      mediaRecorder.stop();
+      mediaRecorder = null;
+      audioStream.getTracks().forEach(function(track) {
+        track.stop();
+      });
+      audioStream = null;
+    }
+    document.getElementById('record-btn').textContent = 'Record';
+  }
+
+
+	</script>
+  </body>
+</html>
+
