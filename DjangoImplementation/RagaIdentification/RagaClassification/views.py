@@ -113,7 +113,7 @@ def makeModel():
 
 
 # Load the model from file
-model = keras.models.load_model('saved_models/Model_classification.hdf5')
+model = keras.models.load_model('saved_models/audio_classification85.hdf5')
 
 
 # filename="C:/Users/Akhilraj/Downloads/Natta10M.wav"
@@ -139,7 +139,7 @@ def home(request):
 def uploadAudio(request):
      if request.method == 'POST':
         uploaded_file = request.FILES['audio']
-        audio, sample_rate = librosa.load(uploaded_file, res_type='kaiser_fast')
+        audio, sample_rate = librosa.load(uploaded_file) #, res_type='kaiser_fast'
         mfccs_features = librosa.feature.mfcc(y=audio, sr=sample_rate, n_mfcc=40)
         mfccs_scaled_features = np.mean(mfccs_features.T,axis=0)
         mfccs_scaled_features=mfccs_scaled_features.reshape(1,-1)
@@ -163,10 +163,7 @@ def predictByRecord(request):
                 print("hello hai")
                 for chunk in audio_file.chunks():
                     destination.write(chunk)
-            uploaded_file ="E:/MCA-2 Year/Main Project/code/MAIN_PROJECT/DjangoImplementation/RagaIdentification/tmp/audio.wav"
-            output_file = "E:/MCA-2 Year/Main Project/code/MAIN_PROJECT/DjangoImplementation/RagaIdentification/tmp/audio.mp3"
-            sound = AudioSegment.from_wav(uploaded_file)
-            sound.export(output_file, format="mp3")
+           
             # sound = AudioSegment.from_mp3(input_file)
             # audio, sample_rate = librosa.load(uploaded_file,sr=22050, res_type='kaiser_fast')
             # print("asjjh",audio)
@@ -174,5 +171,54 @@ def predictByRecord(request):
         # return render(request,'recordAudio.html',{"d":d})
             
     return render(request,'recordAudio.html')
+
+import pyaudio
+import wave
+
+def record_audio(request):
+    CHUNK = 1024
+    FORMAT = pyaudio.paInt16
+    CHANNELS = 1
+    RATE = 44100
+    RECORD_SECONDS = 10
+    WAVE_OUTPUT_FILENAME = "audio.wav"
+
+    p = pyaudio.PyAudio()
+
+    stream = p.open(format=FORMAT,
+                    channels=CHANNELS,
+                    rate=RATE,
+                    input=True,
+                    frames_per_buffer=CHUNK)
+
+    frames = []
+
+    for i in range(0, int(RATE / CHUNK * RECORD_SECONDS)):
+        data = stream.read(CHUNK)
+        frames.append(data)
+
+    stream.stop_stream()
+    stream.close()
+    p.terminate()
+
+    wf = wave.open(WAVE_OUTPUT_FILENAME, 'wb')
+    wf.setnchannels(CHANNELS)
+    wf.setsampwidth(p.get_sample_size(FORMAT))
+    wf.setframerate(RATE)
+    wf.writeframes(b''.join(frames))
+    wf.close()
+    audio, sample_rate = librosa.load('E:/MCA-2 Year/Main Project/code/MAIN_PROJECT/DjangoImplementation/RagaIdentification/audio.wav') #, res_type='kaiser_fast'
+    mfccs_features = librosa.feature.mfcc(y=audio, sr=sample_rate, n_mfcc=40)
+    mfccs_scaled_features = np.mean(mfccs_features.T,axis=0)
+    mfccs_scaled_features=mfccs_scaled_features.reshape(1,-1)
+    predict_x=model.predict(mfccs_scaled_features)
+    classes_x=np.argmax(predict_x,axis=1)
+    results = labelencoder.inverse_transform(classes_x)
+    raga="Predicted raga is :"
+
+    # Further process the audio here
+    return render(request, 'recordAudio.html', {'results': results,'raga':raga})
+
+
 
 

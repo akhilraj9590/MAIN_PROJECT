@@ -118,6 +118,26 @@
         box-shadow: 0 5px 10px rgb(0, 0, 0);
         
       }
+      .result {
+        margin: 0 auto;
+        text-align: center;
+        color: #fff;
+        text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+        width: 27%;
+        /* background-color: rgba(0, 0, 0, 0.6); */
+        border-radius: 10px;
+        padding: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 1);
+        background-color: transparent;
+      }
+      #clear-link{
+        display: block;
+        margin: 7px auto;
+        color:rgb(255, 0, 0);
+        text-decoration: none;
+        margin-top: 12px;
+
+      }
 
       .button:hover {
         font-size: 18px;
@@ -135,7 +155,7 @@
       Carnatic Music Raga Identification
     </nav>
     <h1>Record Audio</h1>
-	<form id="audio-form"  method="post" enctype="multipart/form-data" >
+	<!-- <form id="audio-form"  method="post" enctype="multipart/form-data" >
     {% csrf_token %}
 		<label for="audio">Record Audio:</label>
 		<button id="record-btn" type="button" onclick="toggleRecording()">Record</button>
@@ -143,72 +163,107 @@
 		<button id="cancel-btn" type="button" onclick="resetForm()">Cancel</button>
         <audio id="audio" controls></audio>
         <hr>
+        
+
 		<input type="submit" value="Submit">
-	</form>
+	</form> -->
+
+
+  <form method="post" action="{% url 'record_audio' %}">
+    {% csrf_token %}
+    <button type="submit">Record Audio</button>
+</form>
+
   <h1><a href="{% url 'home' %}" class="button">Back</a></h1>
-  <script>
-		
-  let audioStream;
-  let mediaRecorder;
-  let chunks = [];
+  
+  {% if results %}
+  <div class="result">
+    <h3 >Results:</h3>
+    {{raga}}
+    {% for result in results %}
+      {{ result }}
+    {% endfor %}
+    <a href="{% url 'predictByRecord' %}" id="clear-link" >Clear</a>
+  </div>
+{% endif %}
+<script>
 
-  function toggleRecording() {
-    if (!mediaRecorder) {
-      navigator.mediaDevices.getUserMedia({ audio: true })
-        .then(function(stream) {
-          audioStream = stream;
-          mediaRecorder = new MediaRecorder(stream);
-          mediaRecorder.ondataavailable = function(e) {
-            chunks.push(e.data);
-          };
-          mediaRecorder.onstop = function() {
-            let blob = new Blob(chunks, { 'type' : 'audio/wav; codecs=pcm' });
-            let formData = new FormData();
-            formData.append('audio_file', blob, 'audio.wav');
-            let xhr = new XMLHttpRequest();
-            xhr.open('POST', '/predictByRecord'); // add trailing slash at the end
-            xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}');
-            xhr.onload = function() {
-              if (xhr.status === 200) {
-                console.log('Audio uploaded successfully');
-              } else {
-                console.log('Audio upload failed');
-              }
-            };
-            xhr.send(formData);
-            document.getElementById('audio').src = URL.createObjectURL(blob);
-            document.getElementById('record-btn').textContent = 'Record';
-            chunks = [];
-            audioStream.getTracks().forEach(function(track) {
-              track.stop();
-            });
-            mediaRecorder = null;
-            audioStream = null;
-          };
-          mediaRecorder.start();
-          document.getElementById('record-btn').textContent = 'Stop';
-        })
-        .catch(function(err) {
-          console.log('Error:', err);
-        });
-    } else {
-      mediaRecorder.stop();
-    }
-  }
+//   function toggleRecording() {
+//   const constraints = { audio: true };
+//   const chunks = [];
+//   let recorder, mediaStream;
 
-  function resetForm() {
-    document.getElementById('audio-form').reset();
-    document.getElementById('audio').src = '';
-    if (mediaRecorder) {
-      mediaRecorder.stop();
-      mediaRecorder = null;
-      audioStream.getTracks().forEach(function(track) {
-        track.stop();
-      });
-      audioStream = null;
-    }
-    document.getElementById('record-btn').textContent = 'Record';
-  }
+//   if (!recorder) {
+//     navigator.mediaDevices.getUserMedia(constraints)
+//       .then(function(stream) {
+//         mediaStream = stream;
+//         const audioContext = new AudioContext();
+//         const source = audioContext.createMediaStreamSource(stream);
+//         recorder = new Recorder(source, { numChannels: 1 });
+//         recorder.record();
+//         document.getElementById('record-btn').textContent = 'Stop';
+//       })
+//       .catch(function(err) {
+//         console.log('Error:', err);
+//       });
+//   } else {
+//     recorder.stop();
+//     mediaStream.getTracks().forEach(function(track) {
+//       track.stop();
+//     });
+//     recorder.exportWAV(function(blob) {
+//       const formData = new FormData();
+//       formData.append('audio_file', blob, 'recording.wav');
+//       const xhr = new XMLHttpRequest();
+//       xhr.open('POST', '/upload-audio');
+//       xhr.onload = function() {
+//         if (xhr.status === 200) {
+//           console.log('Audio uploaded successfully');
+//         } else {
+//           console.log('Audio upload failed');
+//         }
+//       };
+//       xhr.send(formData);
+//       document.getElementById('audio').src = URL.createObjectURL(blob);
+//       document.getElementById('record-btn').textContent = 'Record';
+//       recorder.clear();
+//       recorder = null;
+//       mediaStream = null;
+//     });
+//   }
+// }
+
+// function resetForm() {
+//   if (recorder) {
+//     recorder.stop();
+//     mediaStream.getTracks().forEach(function(track) {
+//       track.stop();
+//     });
+//     recorder.clear();
+//     recorder = null;
+//     mediaStream = null;
+//   }
+//   document.getElementById('audio').src = '';
+//   document.getElementById('record-btn').textContent = 'Record';
+//   document.getElementById('audio-form').reset();
+// }
+
+// document.getElementById('audio-form').addEventListener('submit', function(e) {
+//   e.preventDefault();
+//   const formData = new FormData(this);
+//   const xhr = new XMLHttpRequest();
+//   xhr.open('POST', '/submit-form');
+//   xhr.onload = function() {
+//     if (xhr.status === 200) {
+//       console.log('Form submitted successfully');
+//     } else {
+//       console.log('Form submission failed');
+//     }
+//   };
+//   xhr.send(formData);
+//   resetForm();
+// });
+
 
 
 	</script>
