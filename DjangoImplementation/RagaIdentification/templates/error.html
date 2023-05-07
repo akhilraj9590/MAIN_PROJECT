@@ -1,0 +1,105 @@
+
+
+
+
+{% load static %} 
+<!DOCTYPE html>
+<html>
+  <head>
+    <link rel="shortcut icon" type="image/x-icon" href="{% static 'images/favicon.ico' %}">
+    <title> Raga Identification</title>
+    <style>
+      /* Navbar styles */
+      .navbar {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: rgba(255, 255, 255);
+        padding: 15px 20px;
+        text-shadow: 0 0 5px rgb(255, 0, 0);
+        font-family: 'Brush Script MT', cursive;
+        font-size: 2.5rem;
+        text-transform: none;
+        box-shadow: 0 5px 10px rgba(0, 0, 0, 1);
+      }
+
+      /* Background styles */
+      body {
+        margin: 0;
+        padding: 0;
+        background-image: url('{% static "images/bg1.jpg" %}');
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+        
+      }
+
+      /* Form styles */
+   
+
+      /* Error message styles */
+      .error-box {
+        background-color: #000000;
+        border-radius: 20px;
+        padding: 20px;
+        margin: auto;
+        margin-top: 10%;
+        max-width: 30%;
+        text-align: center;
+        box-shadow: 0 5px 10px rgba(0, 0, 0, 1);
+      }
+
+      .error-message {
+        margin-top: 10%;
+        color: #fff;
+        font-size: 20px;
+        margin-bottom: 20px;
+      }
+
+      .close-btn {
+        margin-top: 10%;
+        background-color: #22ff00;
+        color: #ffffff;
+        border: none;
+        border-radius: 10px;
+        padding: 10px 20px;
+        font-size: 20px;
+        cursor: pointer;
+      }
+      .close-btn:hover{
+        cursor: pointer;
+        background-color: #22ff00b8;
+
+      }
+      .error-heading{
+        color: #ff0000;
+      }
+
+      </style>
+       </head>
+       <body>
+         <nav class="navbar">
+           Carnatic Music Raga Identification
+         </nav>
+         <div class="container">
+            {% if error %}
+            <div class="error-box">
+              <h2 class="error-heading">Error:</h2>
+              <p class="error-message">{{ error }}</p>
+              <button class="close-btn" onclick="goBack()">Close</button>
+            </div>
+            {% endif %}
+          </div>
+      
+          <script>
+            function goBack() {
+              window.history.back();
+            }
+          </script>
+        </body>
+      </html>
+      
+         
+       </body>
+     </html>
+

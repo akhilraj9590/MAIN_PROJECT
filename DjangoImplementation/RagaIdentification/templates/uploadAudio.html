@@ -95,6 +95,7 @@
 
       .result {
         margin: 0 auto;
+        margin-top: 10%;
         text-align: center;
         color: #fff;
         text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
@@ -127,7 +128,7 @@
         margin: 7px auto;
         color:rgb(255, 0, 0);
         text-decoration: none;
-        margin-top: 12px;
+        margin-top: 25px;
 
       }
 
@@ -143,6 +144,7 @@
     <nav class="navbar">
       Carnatic Music Raga Identification
     </nav>
+    {% if not results %}
     <h1>Upload Audio</h1>
     <form id="upload-form" method="post" enctype="multipart/form-data">
       {% csrf_token %}
@@ -153,14 +155,15 @@
       <input type="submit" value="Submit">
     </form>
     <h1><a href="{% url 'home' %}" class="button">Back</a></h1>
+    {% endif %}
     {% if results %}
       <div class="result">
         <h3 >Results:</h3>
         {{raga}}
         {% for result in results %}
-          {{ result }}
+        <strong style="color: rgb(0, 255, 0);font-size: 25px;text-shadow: 0 0 10px rgb(255, 255, 255);">{{ result }}</strong>
         {% endfor %}
-        <a href="{% url 'uploadAudio' %}" id="clear-link" >Clear</a>
+        <a href="{% url 'uploadAudio' %}" id="clear-link" >Close </a>
       </div>
     {% endif %}
     

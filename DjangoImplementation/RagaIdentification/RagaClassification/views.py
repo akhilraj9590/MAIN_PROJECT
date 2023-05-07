@@ -25,6 +25,8 @@ from django.contrib import messages
 from django.http import HttpResponse
 # from django.core.files.storage import FileSystemStorage
 from pydub import AudioSegment
+import pyaudio
+import wave
 
 
 
@@ -139,6 +141,9 @@ def home(request):
 def uploadAudio(request):
      if request.method == 'POST':
         uploaded_file = request.FILES['audio']
+        file_name = uploaded_file.name.lower()
+        if not (file_name.endswith('.wav') or file_name.endswith('.mp3') or file_name.endswith('.flac') or file_name.endswith('.ogg')):
+            return render(request, 'error.html', {'error': 'Invalid file format. Only WAV, MP3, FLAC, and OGG are supported.'})
         audio, sample_rate = librosa.load(uploaded_file) #, res_type='kaiser_fast'
         mfccs_features = librosa.feature.mfcc(y=audio, sr=sample_rate, n_mfcc=40)
         mfccs_scaled_features = np.mean(mfccs_features.T,axis=0)
@@ -172,8 +177,7 @@ def predictByRecord(request):
             
     return render(request,'recordAudio.html')
 
-import pyaudio
-import wave
+
 
 def record_audio(request):
     CHUNK = 1024
@@ -215,6 +219,7 @@ def record_audio(request):
     classes_x=np.argmax(predict_x,axis=1)
     results = labelencoder.inverse_transform(classes_x)
     raga="Predicted raga is :"
+    
 
     # Further process the audio here
     return render(request, 'recordAudio.html', {'results': results,'raga':raga})
