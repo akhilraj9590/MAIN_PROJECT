@@ -160,8 +160,9 @@
 
       <form method="post" action="{% url 'record_audio' %}">
         {% csrf_token %}
-        <button type="submit">Record Audio</button>
-        <button type="submit" name="action" value="stop">Stop Recording</button>
+        <button id="start-btn" onclick="start_record()">Start Recording</button>
+        <button id="stop-btn" onclick="stop_record()">Stop Recording</button>
+
       </form>
     
       <h1><a href="{% url 'home' %}" class="button">Back</a></h1>
@@ -176,11 +177,58 @@
           <a href="{% url 'predictByRecord' %}" id="clear-link" >Close </a>
       </div>
     {% endif %}
-<script>
+    <script>
+        // function start_record() {
+        //     document.getElementById("status").innerHTML = "Recording...";
+        //     $.ajax({
+        //         type: "POST",
+        //         url: "/record_audio/",
+        //         headers: {
+        //             'X-CSRFToken': getCookie('csrftoken')
+        //         },
+        //         success: function(response) {
+        //             console.log(response);
+        //             document.getElementById("status").innerHTML = response;
+        //         },
+        //         error: function(response) {
+        //             console.log(response);
+        //             document.getElementById("status").innerHTML = "Error recording audio.";
+        //         }
+        //     });
+        // }
 
+        // function stop_record() {
+        //     fetch('/record_audio/', {
+        //         method: 'POST',
+        //         headers: {
+        //             'Content-Type': 'application/json',
+        //             'X-CSRFToken': getCookie('csrftoken')
+        //         },
+        //         body: JSON.stringify({'stop': true})
+        //     })
+        //     .then(response => {
+        //         document.getElementById("status").innerHTML = "Recording stopped.";
+        //     })
+        //     .catch(error => {
+        //         document.getElementById("status").innerHTML = "Error stopping recording.";
+        //     })
+        // }
 
-  
-	</script>
+        // function getCookie(name) {
+        //     var cookieValue = null;
+        //     if (document.cookie && document.cookie !== '') {
+        //         var cookies = document.cookie.split(';');
+        //         for (var i = 0; i < cookies.length; i++) {
+        //             var cookie = cookies[i].trim();
+        //             if (cookie.substring(0, name.length + 1) === (name + '=')) {
+        //                 cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+        //                 break;
+        //             }
+        //         }
+        //     }
+        //     return cookieValue;
+        // }
+    </script>
 </body>
 </html>
 

@@ -43,20 +43,21 @@ def features_extractor(file):
     return mfccs_scaled_features
 
 def makeDataset():
-    audio_path='E:\MCA-2 Year\Main Project\dataset'
+    audio_path='audio_dataset'
     extracted_features=[]
     for dirpath, dirnames, filenames in os.walk(audio_path):
             for filename in filenames:
                 if filename.endswith('.wav'):
                     filepath=os.path.join(dirpath, filename)
-                    label=filepath.replace("E:\MCA-2 Year\Main Project\dataset", '').replace(filename,"").replace('\\','')
+                    label=filepath.replace("audio_dataset", '').replace(filename,"").replace('\\','')
                     mfccs=features_extractor(filepath)
                     extracted_features.append([mfccs,label])
                     
 
     extracted_features_df=pd.DataFrame(extracted_features,columns=['feature','class'])
     print('hai',extracted_features_df)
-    extracted_features_df.to_pickle('RagamClassificationDataset.pkl')
+    extracted_features_df.to_pickle('RagamClassificationDataset1.pkl')
+
 
 
 extracted_features_df=pd.read_pickle('RagamClassificationDataset.pkl')
@@ -165,7 +166,6 @@ def predictByRecord(request):
         if audio_file:
             # Save the audio file to a temporary location
             with open('tmp/audio.wav', 'wb+') as destination:
-                print("hello hai")
                 for chunk in audio_file.chunks():
                     destination.write(chunk)
            
@@ -216,14 +216,91 @@ def record_audio(request):
     mfccs_scaled_features = np.mean(mfccs_features.T,axis=0)
     mfccs_scaled_features=mfccs_scaled_features.reshape(1,-1)
     predict_x=model.predict(mfccs_scaled_features)
-    classes_x=np.argmax(predict_x,axis=1)
-    results = labelencoder.inverse_transform(classes_x)
-    raga="Predicted raga is :"
+    if np.max(predict_x) > 0.8:
+        classes_x=np.argmax(predict_x,axis=1)
+        results = labelencoder.inverse_transform(classes_x) 
+        raga="Predicted raga is :"
+        return render(request, 'recordAudio.html', {'results': results,'raga':raga})
+    else:
+        raga='No raga identified'
+        results='.'
+        return render(request, 'recordAudio.html', {'results': results,'raga':raga})
+    
+    
     
 
     # Further process the audio here
-    return render(request, 'recordAudio.html', {'results': results,'raga':raga})
+    
 
 
 
 
+
+
+loss, accuracy = model.evaluate(X_test, y_test)
+
+# Print the evaluation metrics
+print(f"Test loss: {loss:.4f}")
+print(f"Test accuracy: {accuracy:.4f}")
+from sklearn.metrics import confusion_matrix
+
+# Convert y_test to label-encoded format
+y_test_labels = np.argmax(y_test, axis=1)
+
+# Make predictions on the test data
+y_pred = model.predict(X_test)
+
+# Convert y_pred to label-encoded format
+y_pred_labels = np.argmax(y_pred, axis=1)
+
+# Compute the confusion matrix
+cm = confusion_matrix(y_test_labels, y_pred_labels)
+print("confusion_matrix",cm)
+
+# from sklearn.metrics import roc_curve, auc
+
+# # Convert y_test to label-encoded format
+# y_test_labels = np.argmax(y_test, axis=1)
+
+# # Make predictions on the test data
+# y_pred = model.predict(X_test)
+
+# # Compute ROC curve and AUC for each class
+# n_classes = y_test.shape[1]
+# fpr = dict()
+# tpr = dict()
+# roc_auc = dict()
+# for i in range(n_classes):
+#     fpr[i], tpr[i], _ = roc_curve(y_test_labels[:, i], y_pred[:, i])
+#     roc_auc[i] = auc(fpr[i], tpr[i])
+    
+# # Compute micro-average ROC curve and AUC
+# fpr["micro"], tpr["micro"], _ = roc_curve(y_test_labels.ravel(), y_pred.ravel())
+# roc_auc["micro"] = auc(fpr["micro"], tpr["micro"])
+
+# import matplotlib.pyplot as plt
+
+# # Print ROC curves and AUC for each class
+# for i in range(n_classes):
+#     plt.figure()
+#     plt.plot(fpr[i], tpr[i], label='ROC curve (area = %0.2f)' % roc_auc[i])
+#     plt.plot([0, 1], [0, 1], 'k--')
+#     plt.xlim([0.0, 1.0])
+#     plt.ylim([0.0, 1.05])
+#     plt.xlabel('False Positive Rate')
+#     plt.ylabel('True Positive Rate')
+#     plt.title('Receiver Operating Characteristic for Class {}'.format(i))
+#     plt.legend(loc="lower right")
+#     plt.show()
+
+# # Print micro-average ROC curve and AUC
+# plt.figure()
+# plt.plot(fpr["micro"], tpr["micro"], label='micro-average ROC curve (area = %0.2f)' % roc_auc["micro"])
+# plt.plot([0, 1], [0, 1], 'k--')
+# plt.xlim([0.0, 1.0])
+# plt.ylim([0.0, 1.05])
+# plt.xlabel('False Positive Rate')
+# plt.ylabel('True Positive Rate')
+# plt.title('Receiver Operating Characteristic (micro-average)')
+# plt.legend(loc="lower right")
+# plt.show()
