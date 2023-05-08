@@ -37,15 +37,21 @@
         margin-bottom: 30px;
         color: #fff;
         text-shadow: 0 0 5px rgb(255, 191, 0);
+        margin-top: 7%;
       }
 
       form {
-        width: 400px;
-        margin: 0 auto;
-        background-color: rgba(255, 255, 255, 0.85);
+        width: 19%;
+        margin:  auto;
+        background-color: rgb(255, 255, 255);
         border-radius: 10px;
         padding: 20px;
         box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        justify-content: center;
+        display: flex;
+        box-shadow: 0 5px 10px rgb(0, 0, 0);
+        margin-top: 3%;
+        
       }
 
       label {
@@ -143,6 +149,39 @@
       .button:hover {
         font-size: 18px;
       }
+      .rec-btn {
+        background-color: #1eff00;
+        color: #000000;
+        padding: 4px 10px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-weight: bold;
+        box-shadow: 5px 5px 10px rgb(0, 0, 0,0.3);
+        text-shadow: 2px 2px 2px rgba(255, 255, 255, 0.9);
+        
+      }
+
+      .rec-btn:hover {
+        background-color: #39c823;
+      }
+      .cancel-btn {
+        background-color: #ff0019;
+        color: #ffffff;
+        padding: 8px 10px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-weight: bold;
+        margin-left: 10%;
+        box-shadow: 5px 5px 10px rgb(0, 0, 0,0.3);
+        text-shadow: 2px 2px 2px rgba(0, 0, 0, 0.9);
+        
+      }
+
+      .cancel-btn:hover {
+        background-color: #c82333;
+      }
 
       @media screen and (max-width: 480px) {
         form {
@@ -160,8 +199,8 @@
 
       <form method="post" action="{% url 'record_audio' %}">
         {% csrf_token %}
-        <button id="start-btn" onclick="start_record()">Start Recording</button>
-        <button id="stop-btn" onclick="stop_record()">Stop Recording</button>
+        <button id="start-btn" class="rec-btn" onclick="start_record()">Start Recording</button> <br>
+        <button id="stop-btn" class="cancel-btn" vonclick="stop_record()">Stop Recording</button>
 
       </form>
     

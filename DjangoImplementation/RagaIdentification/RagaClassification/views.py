@@ -223,7 +223,7 @@ def record_audio(request):
         return render(request, 'recordAudio.html', {'results': results,'raga':raga})
     else:
         raga='No raga identified'
-        results='.'
+        results=' --------'
         return render(request, 'recordAudio.html', {'results': results,'raga':raga})
     
     
@@ -242,6 +242,8 @@ loss, accuracy = model.evaluate(X_test, y_test)
 # Print the evaluation metrics
 print(f"Test loss: {loss:.4f}")
 print(f"Test accuracy: {accuracy:.4f}")
+
+
 from sklearn.metrics import confusion_matrix
 
 # Convert y_test to label-encoded format
@@ -257,50 +259,3 @@ y_pred_labels = np.argmax(y_pred, axis=1)
 cm = confusion_matrix(y_test_labels, y_pred_labels)
 print("confusion_matrix",cm)
 
-# from sklearn.metrics import roc_curve, auc
-
-# # Convert y_test to label-encoded format
-# y_test_labels = np.argmax(y_test, axis=1)
-
-# # Make predictions on the test data
-# y_pred = model.predict(X_test)
-
-# # Compute ROC curve and AUC for each class
-# n_classes = y_test.shape[1]
-# fpr = dict()
-# tpr = dict()
-# roc_auc = dict()
-# for i in range(n_classes):
-#     fpr[i], tpr[i], _ = roc_curve(y_test_labels[:, i], y_pred[:, i])
-#     roc_auc[i] = auc(fpr[i], tpr[i])
-    
-# # Compute micro-average ROC curve and AUC
-# fpr["micro"], tpr["micro"], _ = roc_curve(y_test_labels.ravel(), y_pred.ravel())
-# roc_auc["micro"] = auc(fpr["micro"], tpr["micro"])
-
-# import matplotlib.pyplot as plt
-
-# # Print ROC curves and AUC for each class
-# for i in range(n_classes):
-#     plt.figure()
-#     plt.plot(fpr[i], tpr[i], label='ROC curve (area = %0.2f)' % roc_auc[i])
-#     plt.plot([0, 1], [0, 1], 'k--')
-#     plt.xlim([0.0, 1.0])
-#     plt.ylim([0.0, 1.05])
-#     plt.xlabel('False Positive Rate')
-#     plt.ylabel('True Positive Rate')
-#     plt.title('Receiver Operating Characteristic for Class {}'.format(i))
-#     plt.legend(loc="lower right")
-#     plt.show()
-
-# # Print micro-average ROC curve and AUC
-# plt.figure()
-# plt.plot(fpr["micro"], tpr["micro"], label='micro-average ROC curve (area = %0.2f)' % roc_auc["micro"])
-# plt.plot([0, 1], [0, 1], 'k--')
-# plt.xlim([0.0, 1.0])
-# plt.ylim([0.0, 1.05])
-# plt.xlabel('False Positive Rate')
-# plt.ylabel('True Positive Rate')
-# plt.title('Receiver Operating Characteristic (micro-average)')
-# plt.legend(loc="lower right")
-# plt.show()
