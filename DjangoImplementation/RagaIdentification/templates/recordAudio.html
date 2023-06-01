@@ -10,14 +10,14 @@
         display: flex;
         justify-content: center;
         align-items: center;
-        text-shadow: 0 0 5px rgb(255, 0, 0);
-        color: #fff;
+        color: rgba(255, 255, 255);
         padding: 15px 20px;
+        text-shadow: 0 0 5px rgb(255, 0, 0);
         font-family: 'Brush Script MT', cursive;
-        font-size: 2.5rem;
+        font-size: 2.9rem;
         text-transform: none;
         box-shadow: 0 5px 10px rgba(0, 0, 0, 1);
-
+        letter-spacing: 0.1em;
       }
 
       /* Background styles */
@@ -149,14 +149,14 @@
       }
       .rec-btn {
         background-color: #1eff00;
-        color: #000000;
+        color: #ffffff;
         padding: 4px 10px;
         border: none;
         border-radius: 5px;
         cursor: pointer;
         font-weight: bold;
         box-shadow: 5px 5px 10px rgb(0, 0, 0,0.3);
-        text-shadow: 2px 2px 2px rgba(255, 255, 255, 0.9);
+        text-shadow: 2px 2px 2px rgba(0, 0, 0, 0.9);
         
       }
 
@@ -250,7 +250,7 @@
         <a id="stop-btn" name="stop-btn" style="text-decoration: none;" class="cancel-btn" href="{% url 'predictByRecord' %}">Rec limit to 15sec</a>
         
       </form>
-      <div id="limit"  style="text-align: center;color: #825d5d;">  <br> *Record is limited to 15second for good result</div>
+      <div id="limit"  style="text-align: center;color: #825d5d;">  <br> *Record is limited to 15second for better result</div>
     
       <h1><a href="{% url 'home' %}" class="button">Back</a></h1>
     {% endif %}
