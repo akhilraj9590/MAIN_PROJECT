@@ -18,15 +18,14 @@ from sklearn import metrics
 from tensorflow.keras.callbacks import ModelCheckpoint
 from datetime import datetime 
 import keras
-from django.views.decorators.csrf import csrf_exempt
-# import pydub
 import io
 from django.contrib import messages
 from django.http import HttpResponse
-# from django.core.files.storage import FileSystemStorage
 from pydub import AudioSegment
 import pyaudio
 import wave
+from django.http import JsonResponse
+
 
 
 
@@ -153,109 +152,59 @@ def uploadAudio(request):
         classes_x=np.argmax(predict_x,axis=1)
         results = labelencoder.inverse_transform(classes_x)
         raga="Predicted raga is :"
+        
 
         return render(request, 'uploadAudio.html', {'results': results,'raga':raga})
      return render(request,'uploadAudio.html')
 
 
 
-@csrf_exempt
 def predictByRecord(request):      
     if request.method == 'POST':
-        audio_file = request.FILES.get('audio_file')
-        if audio_file:
-            # Save the audio file to a temporary location
-            with open('tmp/audio.wav', 'wb+') as destination:
-                for chunk in audio_file.chunks():
-                    destination.write(chunk)
-           
-            # sound = AudioSegment.from_mp3(input_file)
-            # audio, sample_rate = librosa.load(uploaded_file,sr=22050, res_type='kaiser_fast')
-            # print("asjjh",audio)
-        # d="predicted raga is Mayamalavagowla"
-        # return render(request,'recordAudio.html',{"d":d})
-            
+        CHUNK = 1024
+        FORMAT = pyaudio.paInt16
+        CHANNELS = 1
+        RATE = 44100
+        RECORD_SECONDS = 16
+        WAVE_OUTPUT_FILENAME = "audio.wav"
+
+        p = pyaudio.PyAudio()
+
+        stream = p.open(format=FORMAT,
+                        channels=CHANNELS,
+                        rate=RATE,
+                        input=True,
+                        frames_per_buffer=CHUNK)
+
+        frames = []
+        for i in range(0, int(RATE / CHUNK * RECORD_SECONDS)):
+            data = stream.read(CHUNK)
+            frames.append(data)
+        stream.stop_stream()
+        stream.close()
+        p.terminate()
+
+        wf = wave.open(WAVE_OUTPUT_FILENAME, 'wb')
+        wf.setnchannels(CHANNELS)
+        wf.setsampwidth(p.get_sample_size(FORMAT))
+        wf.setframerate(RATE)
+        wf.writeframes(b''.join(frames))
+        wf.close()
+        audio, sample_rate = librosa.load('audio.wav') #, res_type='kaiser_fast'
+        mfccs_features = librosa.feature.mfcc(y=audio, sr=sample_rate, n_mfcc=40)
+        mfccs_scaled_features = np.mean(mfccs_features.T,axis=0)
+        mfccs_scaled_features=mfccs_scaled_features.reshape(1,-1)
+        predict_x=model.predict(mfccs_scaled_features)
+        if np.max(predict_x) > 0.7:
+            classes_x=np.argmax(predict_x,axis=1)
+            results = labelencoder.inverse_transform(classes_x) 
+            raga="Predicted raga is :"
+            return render(request, 'recordAudio.html', {'results': results,'raga':raga})
+        else:
+            raga='No raga identified'
+            results=' --------'
+            return render(request, 'recordAudio.html', {'results': results,'raga':raga})
+  
     return render(request,'recordAudio.html')
 
-
-
-def record_audio(request):
-    CHUNK = 1024
-    FORMAT = pyaudio.paInt16
-    CHANNELS = 1
-    RATE = 44100
-    RECORD_SECONDS = 10
-    WAVE_OUTPUT_FILENAME = "audio.wav"
-
-    p = pyaudio.PyAudio()
-
-    stream = p.open(format=FORMAT,
-                    channels=CHANNELS,
-                    rate=RATE,
-                    input=True,
-                    frames_per_buffer=CHUNK)
-
-    frames = []
-
-    for i in range(0, int(RATE / CHUNK * RECORD_SECONDS)):
-        data = stream.read(CHUNK)
-        frames.append(data)
-
-    stream.stop_stream()
-    stream.close()
-    p.terminate()
-
-    wf = wave.open(WAVE_OUTPUT_FILENAME, 'wb')
-    wf.setnchannels(CHANNELS)
-    wf.setsampwidth(p.get_sample_size(FORMAT))
-    wf.setframerate(RATE)
-    wf.writeframes(b''.join(frames))
-    wf.close()
-    audio, sample_rate = librosa.load('E:/MCA-2 Year/Main Project/code/MAIN_PROJECT/DjangoImplementation/RagaIdentification/audio.wav') #, res_type='kaiser_fast'
-    mfccs_features = librosa.feature.mfcc(y=audio, sr=sample_rate, n_mfcc=40)
-    mfccs_scaled_features = np.mean(mfccs_features.T,axis=0)
-    mfccs_scaled_features=mfccs_scaled_features.reshape(1,-1)
-    predict_x=model.predict(mfccs_scaled_features)
-    if np.max(predict_x) > 0.8:
-        classes_x=np.argmax(predict_x,axis=1)
-        results = labelencoder.inverse_transform(classes_x) 
-        raga="Predicted raga is :"
-        return render(request, 'recordAudio.html', {'results': results,'raga':raga})
-    else:
-        raga='No raga identified'
-        results=' --------'
-        return render(request, 'recordAudio.html', {'results': results,'raga':raga})
-    
-    
-    
-
-    # Further process the audio here
-    
-
-
-
-
-
-
-loss, accuracy = model.evaluate(X_test, y_test)
-
-# Print the evaluation metrics
-print(f"Test loss: {loss:.4f}")
-print(f"Test accuracy: {accuracy:.4f}")
-
-
-from sklearn.metrics import confusion_matrix
-
-# Convert y_test to label-encoded format
-y_test_labels = np.argmax(y_test, axis=1)
-
-# Make predictions on the test data
-y_pred = model.predict(X_test)
-
-# Convert y_pred to label-encoded format
-y_pred_labels = np.argmax(y_pred, axis=1)
-
-# Compute the confusion matrix
-cm = confusion_matrix(y_test_labels, y_pred_labels)
-print("confusion_matrix",cm)
 

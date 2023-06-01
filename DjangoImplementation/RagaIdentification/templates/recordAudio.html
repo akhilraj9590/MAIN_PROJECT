@@ -113,7 +113,6 @@
       .button {
         display: inline-block;
         padding: 10px 20px;
-        /* background-color: rgba(59, 59, 59, 0.6); */
         color: #fff;
         text-decoration: none;
         border-radius: 4px;
@@ -131,7 +130,6 @@
         color: #fff;
         text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
         width: 27%;
-        /* background-color: rgba(0, 0, 0, 0.6); */
         border-radius: 10px;
         padding: 10px;
         box-shadow: 0 0 10px rgba(0, 0, 0, 1);
@@ -166,7 +164,7 @@
         background-color: #39c823;
       }
       .cancel-btn {
-        background-color: #ff0019;
+        background-color: #ffb700;
         color: #ffffff;
         padding: 8px 10px;
         border: none;
@@ -179,14 +177,63 @@
         
       }
 
-      .cancel-btn:hover {
-        background-color: #c82333;
-      }
-
+     
       @media screen and (max-width: 480px) {
         form {
           width: 80%;
         }
+      }
+      .loading-animation {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        margin: 0 auto;
+        margin-bottom: 20px;
+        animation: pulse 2s ease-in-out infinite;
+        background: linear-gradient(to right, #ff0000, #f95555, #e40101);
+        background-size: 200% 200%;
+      }
+
+      @keyframes pulse {
+        0% {
+          transform: scale(0.8);
+          box-shadow: 0 0 0 0 rgba(255, 0, 0, 0.7);
+        }
+        50% {
+          transform: scale(1.2);
+          box-shadow: 0 0 0 20px rgba(0, 0, 0, 0);
+        }
+        100% {
+          transform: scale(0.8);
+          box-shadow: 0 0 0 0 rgba(255, 0, 0, 0.7);
+        }
+      }
+      
+
+      @keyframes pulse {
+        0% {
+          opacity: 0.1;
+        }
+        20% {
+          opacity: 1;
+        }
+        40% {
+          opacity: 0.1;
+        }
+        60% {
+          opacity: 1;
+        }
+        80% {
+          opacity: 0.1;
+        }
+        100% {
+          opacity: 1;
+        }
+      }
+      .loading-text {
+        font-size: 24px;
+        text-align: center;
+        animation: pulse 5s infinite;
       }
     </style>
   </head>
@@ -195,14 +242,15 @@
          Carnatic Music Raga Identification
       </nav>
     {% if not results %}
-      <h1>Record Audio</h1>
-
-      <form method="post" action="{% url 'record_audio' %}">
+      <h1 id="recoed-head" >Record Audio</h1>
+     
+      <form method="post">
         {% csrf_token %}
-        <button id="start-btn" class="rec-btn" onclick="start_record()">Start Recording</button> <br>
-        <button id="stop-btn" class="cancel-btn" vonclick="stop_record()">Stop Recording</button>
-
+        <button id="start-btn"  name="start-btn"  class="rec-btn"  onclick="showLoading()">Start Recording</button> <br>
+        <a id="stop-btn" name="stop-btn" style="text-decoration: none;" class="cancel-btn" href="{% url 'predictByRecord' %}">Rec limit to 15sec</a>
+        
       </form>
+      <div id="limit"  style="text-align: center;color: #825d5d;">  <br> *Record is limited to 15second for good result</div>
     
       <h1><a href="{% url 'home' %}" class="button">Back</a></h1>
     {% endif %}
@@ -216,57 +264,20 @@
           <a href="{% url 'predictByRecord' %}" id="clear-link" >Close </a>
       </div>
     {% endif %}
+    
+
+    
     <script>
-        // function start_record() {
-        //     document.getElementById("status").innerHTML = "Recording...";
-        //     $.ajax({
-        //         type: "POST",
-        //         url: "/record_audio/",
-        //         headers: {
-        //             'X-CSRFToken': getCookie('csrftoken')
-        //         },
-        //         success: function(response) {
-        //             console.log(response);
-        //             document.getElementById("status").innerHTML = response;
-        //         },
-        //         error: function(response) {
-        //             console.log(response);
-        //             document.getElementById("status").innerHTML = "Error recording audio.";
-        //         }
-        //     });
-        // }
+       function showLoading() {
+        document.getElementById("recoed-head").innerHTML = "Recording Audio...";
+        document.getElementById("recoed-head").classList.add("loading-text");
+        document.getElementById("start-btn").innerHTML = "Recording started";
+        document.getElementById("stop-btn").innerHTML = "cancel record";
+        document.getElementById("limit").innerHTML = "";
+        document.getElementById("stop-btn").style.backgroundColor  = 'red';
+        document.getElementById("loading").style.display = "block";
 
-        // function stop_record() {
-        //     fetch('/record_audio/', {
-        //         method: 'POST',
-        //         headers: {
-        //             'Content-Type': 'application/json',
-        //             'X-CSRFToken': getCookie('csrftoken')
-        //         },
-        //         body: JSON.stringify({'stop': true})
-        //     })
-        //     .then(response => {
-        //         document.getElementById("status").innerHTML = "Recording stopped.";
-        //     })
-        //     .catch(error => {
-        //         document.getElementById("status").innerHTML = "Error stopping recording.";
-        //     })
-        // }
-
-        // function getCookie(name) {
-        //     var cookieValue = null;
-        //     if (document.cookie && document.cookie !== '') {
-        //         var cookies = document.cookie.split(';');
-        //         for (var i = 0; i < cookies.length; i++) {
-        //             var cookie = cookies[i].trim();
-        //             if (cookie.substring(0, name.length + 1) === (name + '=')) {
-        //                 cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-        //                 break;
-        //             }
-        //         }
-        //     }
-        //     return cookieValue;
-        // }
+      }
     </script>
 </body>
 </html>

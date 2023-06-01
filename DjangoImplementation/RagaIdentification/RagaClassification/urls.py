@@ -7,5 +7,4 @@ urlpatterns = [
     path('', home,name='home'),
     path('uploadAudio', uploadAudio,name='uploadAudio'),
     path('predictByRecord',predictByRecord,name='predictByRecord'),
-    path('record-audio/', record_audio, name='record_audio'),
 ]+ static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
